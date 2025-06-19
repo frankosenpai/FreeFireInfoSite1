@@ -14,6 +14,8 @@ from google.protobuf.message import Message
 from Crypto.Cipher import AES
 import base64
 
+API_KEY = "3mkk"
+
 # === Settings ===
 MAIN_KEY = base64.b64decode('WWcmdGMlREV1aDYlWmNeOA==')
 MAIN_IV = base64.b64decode('Nm95WkRyMjJFM3ljaGpNJQ==')
@@ -153,6 +155,8 @@ def get_account_info():
         return formatted_json, 200, {'Content-Type': 'application/json; charset=utf-8'}
 
     except Exception as e:
+            if key != API_KEY:
+        return jsonify({"error": "Invalid or missing API key"}), 401
         # Agar koi error aaye toh yeh catch karega
         return jsonify({"error": "Invalid UID or Region. Please check and try again."}), 500
 
