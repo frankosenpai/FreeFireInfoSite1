@@ -136,6 +136,7 @@ def cached_endpoint(ttl=300):
 @app.route('/player-info')
 @cached_endpoint()
 def get_account_info():
+    key = request.args.get('key')
     region = request.args.get('region')
     uid = request.args.get('uid')
 
