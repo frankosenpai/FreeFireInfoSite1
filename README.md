@@ -163,4 +163,5 @@ git clone https://github.com/duyvinh09/FreeFireInfoSite.git
 
 ### Deploy via Vercel  
 You can deploy the project using the link below:  
-[![Deploy to Vercel](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/duyvinh09/FreeFireInfoSite)  
+
+Dev By  : @M_DD_F
