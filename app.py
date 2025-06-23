@@ -1,4 +1,3 @@
-
 import asyncio
 import time
 import httpx
@@ -14,6 +13,10 @@ from google.protobuf import json_format, message
 from google.protobuf.message import Message
 from Crypto.Cipher import AES
 import base64
+import nest_asyncio
+
+# تفعيل nest_asyncio لتمكين تشغيل async داخل Flask
+nest_asyncio.apply()
 
 # === Settings ===
 API_KEY = "FranKo-7up"  # مفتاح الـ API
@@ -66,7 +69,6 @@ def get_account_credentials(region: str) -> str:
     else:
         return "uid=3939507748&password=55A6E86C5A338D133BAD02964EFB905C7C35A86440496BC210A682146DCE9F32"
 
-# === Token Generation ===
 async def get_access_token(account: str):
     url = "https://ffmconnect.live.gop.garenanow.com/oauth/guest/token/grant"
     payload = account + "&response_type=token&client_type=2&client_secret=2ee44819e9b4598845141067b281621874d0d5d7af9d8f7e00c1e54715b7d1e3&client_id=100067"
@@ -128,6 +130,11 @@ async def GetAccountInformation(uid, unk, region, endpoint):
         resp = await client.post(server+endpoint, data=data_enc, headers=headers)
         return json.loads(json_format.MessageToJson(decode_protobuf(resp.content, AccountPersonalShow_pb2.AccountPersonalShowInfo)))
 
+# تشغيل async داخل دالة عادية في Flask
+def run_async(coro):
+    loop = asyncio.get_event_loop()
+    return loop.run_until_complete(coro)
+
 # === Caching Decorator ===
 def cached_endpoint(ttl=300):
     def decorator(fn):
@@ -154,17 +161,18 @@ def get_account_info():
     if not region:
         return jsonify({"error": "Please provide REGION."}), 400
     try:
-        return_data = asyncio.run(GetAccountInformation(uid, "7", region, "/GetPlayerPersonalShow"))
+        # تشغيل الدالة async داخل sync
+        return_data = run_async(GetAccountInformation(uid, "7", region, "/GetPlayerPersonalShow"))
         formatted_json = json.dumps(return_data, indent=2, ensure_ascii=False)
         return formatted_json, 200, {'Content-Type': 'application/json; charset=utf-8'}
     except Exception as e:
-        return jsonify({"error": "Invalid UID or Region. Please check and try again."}), 500
+        return jsonify({"error": "Invalid UID or Region. Please check and try again.", "details": str(e)}), 500
 
 @app.route('/refresh', methods=['GET','POST'])
 @require_api_key
 def refresh_tokens_endpoint():
     try:
-        asyncio.run(initialize_tokens())
+        run_async(initialize_tokens())
         return jsonify({'message':'Tokens refreshed for all regions.'}),200
     except Exception as e:
         return jsonify({'error': f'Refresh failed: {e}'}),500
@@ -176,3 +184,4 @@ async def startup():
 
 if __name__ == '__main__':
     asyncio.run(startup())
+
