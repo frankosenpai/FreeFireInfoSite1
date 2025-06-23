@@ -1,3 +1,4 @@
+
 import asyncio
 import time
 import httpx
@@ -14,9 +15,8 @@ from google.protobuf.message import Message
 from Crypto.Cipher import AES
 import base64
 
-API_KEY = "3mkk"
-
 # === Settings ===
+API_KEY = "FranKo-7up"  # مفتاح الـ API
 MAIN_KEY = base64.b64decode('WWcmdGMlREV1aDYlWmNeOA==')
 MAIN_IV = base64.b64decode('Nm95WkRyMjJFM3ljaGpNJQ==')
 RELEASEVERSION = "OB49"
@@ -28,6 +28,16 @@ app = Flask(__name__)
 CORS(app)
 cache = TTLCache(maxsize=100, ttl=300)
 cached_tokens = defaultdict(dict)
+
+# === API Key Check ===
+def require_api_key(fn):
+    @wraps(fn)
+    def decorated(*args, **kwargs):
+        key = request.args.get("key") or request.headers.get("X-API-KEY")
+        if key != API_KEY:
+            return jsonify({"error": "Unauthorized - Invalid API Key"}), 401
+        return fn(*args, **kwargs)
+    return decorated
 
 # === Helper Functions ===
 def pad(text: bytes) -> bytes:
@@ -134,34 +144,24 @@ def cached_endpoint(ttl=300):
 
 # === Flask Routes ===
 @app.route('/player-info')
+@require_api_key
 @cached_endpoint()
 def get_account_info():
-    key = request.args.get('key')
     region = request.args.get('region')
     uid = request.args.get('uid')
-
-    # Pehle basic validation
     if not uid:
         return jsonify({"error": "Please provide UID."}), 400
-
     if not region:
         return jsonify({"error": "Please provide REGION."}), 400
-
     try:
-        # API call
         return_data = asyncio.run(GetAccountInformation(uid, "7", region, "/GetPlayerPersonalShow"))
-
-        # Agar data mila toh usko beautify karke bhejo
         formatted_json = json.dumps(return_data, indent=2, ensure_ascii=False)
         return formatted_json, 200, {'Content-Type': 'application/json; charset=utf-8'}
-
     except Exception as e:
-            if key != API_KEY:
-        return jsonify({"error": "Invalid or missing API key"}), 401
-        # Agar koi error aaye toh yeh catch karega
         return jsonify({"error": "Invalid UID or Region. Please check and try again."}), 500
 
 @app.route('/refresh', methods=['GET','POST'])
+@require_api_key
 def refresh_tokens_endpoint():
     try:
         asyncio.run(initialize_tokens())
@@ -176,4 +176,3 @@ async def startup():
 
 if __name__ == '__main__':
     asyncio.run(startup())
-    app.run(host='0.0.0.0', port=5000, debug=True)
