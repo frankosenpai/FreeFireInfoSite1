@@ -18,8 +18,7 @@ import nest_asyncio
 # تفعيل nest_asyncio لتمكين تشغيل async داخل Flask
 nest_asyncio.apply()
 
-# === Settings ===
-API_KEY = "FranKo-7up"  # مفتاح الـ API
+# === Settings === # مفتاح الـ API
 MAIN_KEY = base64.b64decode('WWcmdGMlREV1aDYlWmNeOA==')
 MAIN_IV = base64.b64decode('Nm95WkRyMjJFM3ljaGpNJQ==')
 RELEASEVERSION = "OB49"
@@ -28,18 +27,19 @@ SUPPORTED_REGIONS = {"IND", "BR", "US", "SAC", "NA", "SG", "RU", "ID", "TW", "VN
 
 # === Flask App Setup ===
 app = Flask(__name__)
+API_KEY = "FranKo-7up" 
 CORS(app)
 cache = TTLCache(maxsize=100, ttl=300)
 cached_tokens = defaultdict(dict)
 
 # === API Key Check ===
-def require_api_key(fn):
-    @wraps(fn)
+def require_api_key(f):
+    @wraps(f)
     def decorated(*args, **kwargs):
-        key = request.args.get("key") or request.headers.get("X-API-KEY")
+        key = request.args.get("key")  # من الرابط فقط
         if key != API_KEY:
-            return jsonify({"error": "Unauthorized - Invalid API Key"}), 401
-        return fn(*args, **kwargs)
+            return jsonify({"error": "Unauthorized - Invalid API Key"}), 400
+        return f(*args, **kwargs)
     return decorated
 
 # === Helper Functions ===
