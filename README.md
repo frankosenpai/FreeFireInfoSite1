@@ -1,13 +1,13 @@
-# 📂 FREE FIRE INFO API  
+# 📂 FREE FIRE INFO API SUPPORT 
 
 ## Supported Regions  
 ```json  
 ["IND", "BR", "SG", "RU", "ID", "TW", "US", "VN", "TH", "ME", "PK", "CIS", "BD", "NA", "SAC", "EU"]  
 ```  
 
-## Example API Request  
+## DeV GrouPp 
 ```plaintext  
-https://ffdvinh09-info.vercel.app/player-info?region=SG&uid=338277714  
+https://t.me/akaji_911
 ```  
 
 ## Example Response  
@@ -149,6 +149,8 @@ https://ffdvinh09-info.vercel.app/player-info?region=SG&uid=338277714
         "creditScore": 100,  
         "rewardState": "REWARD_STATE_UNCLAIMED",  
         "periodicSummaryEndTime": "1749773520"  
+
+API By : @M_DD_F
     }  
 }  
 ```  
@@ -161,7 +163,13 @@ To clone the repository, run the following command:
 git clone https://github.com/duyvinh09/FreeFireInfoSite.git  
 ```  
 
+### THANKS FOR AKAJI TEAM
+```ADMIN GROUP
+
+https://t.me/akaji_911
+```
 ### Deploy via Vercel  
+
 You can deploy the project using the link below:  
 
 Dev By  : @M_DD_F
